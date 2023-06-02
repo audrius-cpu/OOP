@@ -136,3 +136,34 @@ void studento_spausdinimas(studentas* tmp, int kiekis)
     }
 }
 
+int main()
+{
+    string ivestis;
+    int kiekis = 0;
+    studentas* stud = nullptr;
+    srand(time(NULL));
+
+    do
+    {
+        studentas dab_stud;
+        studento_nuskaitymas(dab_stud);
+        kiekis++;
+
+        studentas* naujas_stud = new studentas[kiekis];
+        for (int i = 0; i < kiekis - 1; i++)
+            naujas_stud[i] = stud[i];
+        naujas_stud[kiekis - 1] = dab_stud;
+        delete[] stud;
+        stud = naujas_stud;
+
+        cout << "Studentu vedimo nutraukimas 'N', Tesimas 'Betkoks simbolis': ";
+        cin >> ivestis;
+
+    } while (ivestis != "n" && ivestis != "N");
+
+    studento_spausdinimas(stud, kiekis);
+
+    delete[] stud;
+    return 0;
+}
+
