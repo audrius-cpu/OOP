@@ -1,4 +1,4 @@
-nclude"Header.h"
+#include"Header.h"
 
 void generuoti_faila_duomenis(int studentu_skaicius, int pazymiu_skaicius, const string& filename) {
 
