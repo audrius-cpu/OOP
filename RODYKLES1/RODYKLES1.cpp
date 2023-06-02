@@ -6,6 +6,8 @@
 #include <cstdlib>
 #include <ctime>
 #include <random>
+#include <fstream>
+#include <sstream>
 
 using namespace std;
 
@@ -16,6 +18,46 @@ struct studentas
     int egzaminas;
     double vidurkis, mediana;
 } dab_stud;
+
+bool studentu_rikiavimas(const studentas& a, const studentas& b)
+{
+    return a.vardas < b.vardas;
+}
+
+void vidurkio_radimas(studentas& tmp)
+{
+    double sum = 0;
+
+    if (tmp.pazymiai.empty())
+    {
+        tmp.vidurkis = 0;
+        return;
+    }
+
+    for (int i = 0; i < tmp.pazymiai.size(); i++)
+    {
+        sum += tmp.pazymiai[i];
+    }
+
+    tmp.vidurkis = sum / tmp.pazymiai.size();
+}
+
+void medianos_radimas(studentas& tmp)
+{
+    if (tmp.pazymiai.empty())
+    {
+        tmp.mediana = 0;
+        return;
+    }
+
+    sort(tmp.pazymiai.begin(), tmp.pazymiai.end());
+
+    int vidurinis = tmp.pazymiai.size() / 2;
+    if (tmp.pazymiai.size() % 2 == 0)
+        tmp.mediana = (tmp.pazymiai[vidurinis - 1] + tmp.pazymiai[vidurinis]) / 2.0;
+    else
+        tmp.mediana = tmp.pazymiai[vidurinis];
+}
 
 void pazymiu_nuskaitymas(studentas& tmp)
 {
@@ -60,29 +102,6 @@ void pazymiu_nuskaitymas(studentas& tmp)
     }
 }
 
-void vidurkio_radimas(studentas& tmp)
-{
-    double sum = 0;
-
-    for (int i = 0; i < tmp.pazymiai.size(); i++)
-    {
-        sum += tmp.pazymiai[i];
-    }
-
-    tmp.vidurkis = sum / tmp.pazymiai.size();
-}
-
-void medianos_radimas(studentas& tmp)
-{
-    sort(tmp.pazymiai.begin(), tmp.pazymiai.end());
-
-    int vidurinis = tmp.pazymiai.size() / 2;
-    if (tmp.pazymiai.size() % 2 == 0)
-        tmp.mediana = (tmp.pazymiai[vidurinis - 1] + tmp.pazymiai[vidurinis]) / 2.0;
-    else
-        tmp.mediana = tmp.pazymiai[vidurinis];
-}
-
 void studento_nuskaitymas(studentas& tmp)
 {
     int egz_paz;
@@ -105,7 +124,52 @@ void studento_nuskaitymas(studentas& tmp)
     tmp.egzaminas = egz_paz;
 }
 
-void studento_spausdinimas(vector<studentas> tmp)
+vector<studentas> failo_nuskaitymas(const string& filename)
+{
+    vector<studentas> students;
+    ifstream file(filename);
+
+    if (file.is_open()) {
+        string antraste;
+        getline(file, antraste);
+
+        string line;
+        while (getline(file, line))
+        {
+            studentas student;
+            istringstream iss(line);
+            string vardas, pavarde;
+            iss >> vardas >> pavarde;
+
+            student.vardas = vardas;
+            student.pavarde = pavarde;
+
+            int grade;
+            while (iss >> grade)
+            {
+                student.pazymiai.push_back(grade);
+            }
+
+            if (!student.pazymiai.empty()) {
+                student.egzaminas = student.pazymiai.back();
+                student.pazymiai.pop_back();
+            }
+
+            vidurkio_radimas(student);
+            medianos_radimas(student);
+            students.push_back(student);
+        }
+
+        file.close();
+    }
+    else {
+        cout << "Nepavyko atidaryti failo : " << filename << endl;
+    }
+
+    return students;
+}
+
+void studento_spausdinimas(const vector<studentas>& tmp)
 {
     cout << setw(15) << left << "Vardas" << setw(20) << "Pavarde" << setw(10) << "Gal.vid" << setw(10) << "Gal.med" << endl;
     for (int a = 0; a < 55; a++)
@@ -120,19 +184,51 @@ void studento_spausdinimas(vector<studentas> tmp)
 
 int main()
 {
-    string ivestis;
     vector<studentas> stud;
     srand(time(NULL));
 
-    do
-    {
-        studento_nuskaitymas(dab_stud);
-        stud.push_back(dab_stud);
+    string ivestis;
+    bool validInput = false;
 
-        cout << "Studentu vedimo nutraukimas 'N', Tesimas 'Betkoks simbolis': ";
+    while (!validInput)
+    {
+        cout << "Pasirinkite pazymiu ivedimo metoda ('R' - ranka, 'F' - failas): ";
         cin >> ivestis;
 
-    } while (ivestis != "n" && ivestis != "N");
+        if (ivestis == "R" || ivestis == "r")
+        {
+            do
+            {
+                studento_nuskaitymas(dab_stud);
+                stud.push_back(dab_stud);
+
+                cout << "Studentu vedimo nutraukimas 'N', Tesimas 'Betkoks simbolis': ";
+                cin >> ivestis;
+
+            } while (ivestis != "n" && ivestis != "N");
+
+            validInput = true;
+        }
+        else if (ivestis == "F" || ivestis == "f")
+        {
+            string file_name;
+
+            cout << "Iveskite failo pavadinima: ";
+            cin >> file_name;
+
+            stud = failo_nuskaitymas(file_name);
+
+            if (!stud.empty())
+                validInput = true;
+            else
+                cout << "Failas neegzistuoja arba yra tuscias. Bandykite dar karta." << endl;
+        }
+        else
+        {
+            cout << "Neteisingas pasirinkimas. Bandykite dar karta." << endl;
+        }
+    }
+    sort(stud.begin(), stud.end(), studentu_rikiavimas);
 
     studento_spausdinimas(stud);
 
