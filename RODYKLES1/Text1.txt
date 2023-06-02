@@ -1,0 +1,7 @@
+Vardas         Pavarde        ND1 ND2 ND3 ND4 ND5 Egzaminas
+Arvydas        Sabonis        1   5   6   8   9   2 
+Gintaras       Einikis        1   4   4   3   9   6 
+Zydrunas       Ilgauskas      2   3   4   1   9   10
+Jonas          Maciulis       4   6   8   9   10  2
+Simas          Jasaitis       1   2   3   4   5   6
+Rimas          Kurtinaitis    2   9   6   4   5   1  
