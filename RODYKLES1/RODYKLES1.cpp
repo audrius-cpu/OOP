@@ -99,3 +99,40 @@ void medianos_radimas(studentas& tmp)
     else
         tmp.mediana = tmp.pazymiai[vidurinis];
 }
+
+void studento_nuskaitymas(studentas& tmp)
+{
+    int egz_paz;
+
+    cout << "Iveskite studento varda ir pavarde: ";
+    cin >> tmp.vardas >> tmp.pavarde;
+    pazymiu_nuskaitymas(tmp);
+    vidurkio_radimas(tmp);
+    medianos_radimas(tmp);
+    delete[] tmp.pazymiai;
+    tmp.pazymiai = nullptr;
+    cout << "Iveskite egzamino rezultata: ";
+
+    while (!(cin >> egz_paz) || egz_paz > 10 || egz_paz < 1)
+    {
+        cin.clear();
+        cin.ignore();
+        cout << "Jusu ivestas skaicius turi buti [1-10]. Bandykite dar karta: ";
+    }
+
+    tmp.egzaminas = egz_paz;
+}
+
+void studento_spausdinimas(studentas* tmp, int kiekis)
+{
+    cout << setw(15) << left << "Vardas" << setw(20) << "Pavarde" << setw(10) << "Gal.vid" << setw(10) << "Gal.med" << endl;
+    for (int a = 0; a < 55; a++)
+        cout << "-";
+    cout << endl;
+
+    for (int i = 0; i < kiekis; i++)
+    {
+        cout << setw(15) << left << tmp[i].vardas << setw(20) << tmp[i].pavarde << setw(10) << fixed << setprecision(2) << 0.4 * tmp[i].vidurkis + 0.6 * tmp[i].egzaminas << setw(10) << setprecision(2) << 0.4 * tmp[i].mediana + 0.6 * tmp[i].egzaminas << endl;
+    }
+}
+
